@@ -1,0 +1,8 @@
+---
+- name: Deploy and Configure HashiCorp Vault and Consul
+  hosts: all
+  become: yes
+  roles:
+    - ./docker-role
+
+

@@ -1,0 +1,6 @@
+# vars file for Docker
+
+docker_gpg_key: "https://download.docker.com/linux/{{ ansible_os_family | lower }}/gpg"
+docker_repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+docker_baseurl: "https://download.docker.com/linux/centos/7/x86_64/stable"
+
