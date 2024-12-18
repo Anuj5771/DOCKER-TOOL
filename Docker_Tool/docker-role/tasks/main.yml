@@ -1,65 +1,79 @@
-- name: Add Docker GPG key (Debian)
-  apt_key:
-    url: "{{ docker_gpg_key }}"
-    state: present
-  when: ansible_os_family == "Debian"
+---
+- name: Install Docker SDK and Start Nginx Container
+  hosts: all
+  become: true
+  vars:
+    docker_gpg_key: https://download.docker.com/linux/ubuntu/gpg
+    docker_repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    docker_baseurl: https://download.docker.com/linux/centos/7/x86_64/stable
+  tasks:
 
-- name: Add Docker repository (Debian)
-  apt_repository:
-    repo: "{{ docker_repo }}"
-    state: present
-  when: ansible_os_family == "Debian"
+    - name: Install Docker SDK for Python
+      pip:
+        name: docker
+        state: present
+        executable: pip3
 
-- name: Install Docker (Debian)
-  apt:
-    update_cache: true
-    name: docker-ce
-    state: present
-  when: ansible_os_family == "Debian"
+    # Debian Family Tasks
+    - name: Add Docker GPG key (Debian)
+      apt_key:
+        url: "{{ docker_gpg_key }}"
+        state: present
+      when: ansible_os_family == "Debian"
 
-- name: Add Docker YUM repository (RedHat)
-  yum_repository:
-    name: docker-ce
-    baseurl: "{{ docker_baseurl }}"
-    repo_gpgcheck: yes
-    enabled: yes
-    gpgcheck: yes
-    gpgkey: "{{ docker_gpg_key }}"
-    sslverify: yes
-    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
-  when: ansible_os_family == "RedHat"
+    - name: Add Docker repository (Debian)
+      apt_repository:
+        repo: "{{ docker_repo }}"
+        state: present
+      when: ansible_os_family == "Debian"
 
-- name: Install Docker (RedHat)
-  yum:
-    name: docker-ce
-    state: present
-  when: ansible_os_family == "RedHat"
+    - name: Install Docker (Debian)
+      apt:
+        update_cache: true
+        name: docker-ce
+        state: present
+      when: ansible_os_family == "Debian"
 
-- name: Generate Docker daemon.json
-  template:
-    src: docker-daemon.json.j2
-    dest: /etc/docker/daemon.json
-  notify: restart docker
-  when: ansible_os_family in ["Debian", "RedHat"]
+    # RedHat Family Tasks
+    - name: Add Docker YUM repository (RedHat)
+      yum_repository:
+        name: docker-ce
+        baseurl: "{{ docker_baseurl }}"
+        repo_gpgcheck: yes
+        enabled: yes
+        gpgcheck: yes
+        gpgkey: "{{ docker_gpg_key }}"
+      when: ansible_os_family == "RedHat"
 
-- name: Ensure Docker service is started and enabled
-  service:
-    name: docker
-    state: started
-    enabled: yes
-  when: ansible_os_family in ["Debian", "RedHat"]
+    - name: Install Docker (RedHat)
+      yum:
+        name: docker-ce
+        state: present
+      when: ansible_os_family == "RedHat"
 
-- name: Create and start an Nginx container
-  docker_container:
-    name: nginx_container
-    image: nginx:latest
-    state: started  # Ensure the container is in the running state
-    restart_policy: always  # Ensure the container restarts if it crashes
-    ports:
-      - "80:80"
-    log_driver: "json-file"
-    log_options:
-      max-size: "10m"
-      max-file: "3"
-    container_default_behavior: "compatibility"  # Explicitly specify behavior here
-  when: ansible_os_family in ["Debian", "RedHat"]
+    # Common Tasks for Both Debian and RedHat
+    - name: Generate Docker daemon.json
+      template:
+        src: docker-daemon.json.j2
+        dest: /etc/docker/daemon.json
+      notify: restart docker
+      when: ansible_os_family in ["Debian", "RedHat"]
+
+    - name: Ensure Docker service is started and enabled
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create and start an Nginx container
+      docker_container:
+        name: nginx_container
+        image: nginx:latest
+        state: started
+        restart_policy: always
+        ports:
+          - "80:80"
+        log_driver: "json-file"
+        log_options:
+          max-size: "10m"
+          max-file: "3"
