@@ -1,9 +1,0 @@
-plugin: amazon.aws.aws_ec2
-regions:
-  - us-west-2
-keyed_groups:
-  - key: "private-instance-01"
-  - key: "private-instance-02"
-filters:
-  instance-state-name: running  # Only include running instances
-remote_user: ubuntu

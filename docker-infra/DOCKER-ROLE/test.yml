@@ -1,7 +1,0 @@
-
----
-- name: Deploy to docker tool
-  hosts: all
-  become: yes
-  roles:
-    - /var/lib/jenkins/workspace/tool/docker-infra/DOCKER-ROLE/docker-role
