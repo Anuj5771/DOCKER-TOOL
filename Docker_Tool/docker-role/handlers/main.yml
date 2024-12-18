@@ -5,5 +5,5 @@
   service:
     name: docker
     state: restarted
-    enabled: yes---
+    enabled: yes
 # handlers file for docker
