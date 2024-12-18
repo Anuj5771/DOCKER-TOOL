@@ -1,9 +1,18 @@
 plugin: amazon.aws.aws_ec2
 regions:
-  - ap-southeast-1
+  - ap-southeast-1  # AWS region for your EC2 instances
 keyed_groups:
-  - key: "application-host"
-  #- key: "docker-host"
+  - key: "application-host"  # Grouping instances by a tag key
+  # - key: "docker-host"  # Uncomment if you need to group by this tag
 filters:
-  instance-state-name: running  # Only include running instances
-remote_user: ubuntu
+  instance-state-name: running  # Only include instances that are currently running
+remote_user: ubuntu  # Set the default SSH user for EC2 instances
+compose:
+  ansible_host: private_ip_address  # Use private IPs for internal communication
+  # ansible_host: public_ip_address  # Uncomment this line if you want to use public IPs
+# Optional: Use strict mode to enforce only these hosts
+strict: False
+# Optional: Cache the inventory for better performance
+cache: True
+cache_timeout: 600  # Cache timeout in seconds
+ansible_ssh_common_args: '-o ConnectTimeout=60'  # Set SSH connection timeout
