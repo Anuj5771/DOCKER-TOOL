@@ -1,3 +1,16 @@
+# ----------------------- Install pip3 -----------------------
+- name: Install pip3 (Debian)
+  apt:
+    name: python3-pip
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install pip3 (RedHat)
+  yum:
+    name: python3-pip
+    state: present
+  when: ansible_os_family == "RedHat"
+
 # ----------------------- Debian Tasks -----------------------
 - name: Add Docker GPG key (Debian)
   apt_key:
