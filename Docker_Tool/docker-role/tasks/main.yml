@@ -1,11 +1,4 @@
----
-- name: Install Docker and required dependencies
-  hosts: all
-  become: yes
-  tasks:
-
-    # Add Docker GPG key (Debian)
-    - name: Add Docker GPG key (Debian)
+- name: Add Docker GPG key (Debian)
       apt_key:
         url: "{{ docker_gpg_key }}"
         state: present
@@ -84,9 +77,3 @@
           max-file: "3"
         container_default_behavior: "compatibility"  # Explicitly specify behavior here
       when: ansible_os_family in ["Debian", "RedHat"]
-
-  handlers:
-    - name: restart docker
-      service:
-        name: docker
-        state: restarted
