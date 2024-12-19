@@ -1,3 +1,5 @@
+- name: Update the system
+  command: sudo apt update
 # ----------------------- Install pip3 -----------------------
 - name: Install pip3 (Debian)
   apt:
