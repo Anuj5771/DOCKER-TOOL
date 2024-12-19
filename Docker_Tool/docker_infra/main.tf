@@ -13,42 +13,6 @@ data "aws_vpc" "default" {
   default = true
 }
 
-################### Create VPC Peering Connection ###################
-resource "aws_vpc_peering_connection" "tool_to_default" {
-  vpc_id        = aws_vpc.tool.id
-  peer_vpc_id   = data.aws_vpc.default.id
-  auto_accept   = true
-
-  tags = {
-    Name = "tool-to-default-peering"
-  }
-}
-
-################### Update Public Route Table for Tool VPC ###################
-resource "aws_route" "tool_to_default" {
-  route_table_id         = aws_route_table.public_RT.id
-  destination_cidr_block = data.aws_vpc.default.cidr_block
-  vpc_peering_connection_id = aws_vpc_peering_connection.tool_to_default.id
-}
-
-################### Update Private Route Table for Tool VPC ###################
-resource "aws_route" "tool_private_to_default" {
-  route_table_id         = aws_route_table.private_RT.id
-  destination_cidr_block = data.aws_vpc.default.cidr_block
-  vpc_peering_connection_id = aws_vpc_peering_connection.tool_to_default.id
-}
-
-################### Fetch Default VPC Route Table ###################
-data "aws_route_table" "default" {
-  vpc_id = data.aws_vpc.default.id
-}
-
-################### Update Route in Default VPC Route Table ###################
-resource "aws_route" "default_to_tool" {
-  route_table_id         = data.aws_route_table.default.id
-  destination_cidr_block = aws_vpc.tool.cidr_block
-  vpc_peering_connection_id = aws_vpc_peering_connection.tool_to_default.id
-}
 
 ######### Subnet Configuration #########
 
@@ -251,6 +215,45 @@ resource "aws_instance" "private2" {
     Name = "docker-host"
   }
 }
+
+
+################### Create VPC Peering Connection ###################
+resource "aws_vpc_peering_connection" "tool_to_default" {
+  vpc_id        = aws_vpc.tool.id
+  peer_vpc_id   = data.aws_vpc.default.id
+  auto_accept   = true
+
+  tags = {
+    Name = "tool-to-default-peering"
+  }
+}
+
+################### Update Public Route Table for Tool VPC ###################
+resource "aws_route" "tool_to_default" {
+  route_table_id         = aws_route_table.public_RT.id
+  destination_cidr_block = data.aws_vpc.default.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.tool_to_default.id
+}
+
+################### Update Private Route Table for Tool VPC ###################
+resource "aws_route" "tool_private_to_default" {
+  route_table_id         = aws_route_table.private_RT.id
+  destination_cidr_block = data.aws_vpc.default.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.tool_to_default.id
+}
+
+################### Fetch Default VPC Route Table ###################
+data "aws_route_table" "default" {
+  vpc_id = data.aws_vpc.default.id
+}
+
+################### Update Route in Default VPC Route Table ###################
+resource "aws_route" "default_to_tool" {
+  route_table_id         = data.aws_route_table.default.id
+  destination_cidr_block = aws_vpc.tool.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.tool_to_default.id
+}
+
 
 ######### Terraform Backend #########
 
